@@ -18,3 +18,8 @@ thumb
 sketch
 
 # End of https://www.toptal.com/developers/gitignore/api/react
+build
+dist
+bun.lockb
+src-tauri/Cargo.lock
+src-tauri/db.sqlite

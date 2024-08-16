@@ -2,26 +2,18 @@ import type { PatientName } from "./Patient";
 import { SidebarElt } from "./SidebarElt";
 
 interface SidebarProps {
+	onNew: () => void;
 	onSelected: (n: number) => void;
 	patientNames: PatientName[];
 }
 
-export function Sidebar({ onSelected, patientNames }: SidebarProps) {
-	const handleSelected = (n: number) => {
-		onSelected(n);
-	};
-
-	const handleNew = () => {
-		// TODO
-		console.log("NEW");
-	};
-
+export function Sidebar({ onNew, onSelected, patientNames }: SidebarProps) {
 	const newItem = (
 		<SidebarElt
 			className="text-6xl"
 			content="+"
 			index={-1}
-			onClick={handleNew}
+			onClick={onNew}
 			key={"new-1"}
 		/>
 	);
@@ -30,7 +22,7 @@ export function Sidebar({ onSelected, patientNames }: SidebarProps) {
 		<SidebarElt
 			content={name}
 			index={index}
-			onClick={() => handleSelected(id)}
+			onClick={() => onSelected(id)}
 			key={`${name}${id}`}
 		/>
 	));

@@ -6,4 +6,6 @@ export interface Patient {
 
 export type PatientName = Pick<Patient, "name" | "id">;
 
-export type NewPatient = Omit<Patient, "id">;
+export type PatientForm = Omit<Patient, "id">;
+
+export type PatientData = Omit<Patient, "id"> & { id: number | null };

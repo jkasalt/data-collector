@@ -71,6 +71,20 @@ async fn save(handle: AppHandle, NewPatient { name, age }: NewPatient) -> DataCo
 }
 
 #[tauri::command]
+async fn update(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
+    let AppState { db } = handle.state::<AppState>().inner();
+    sqlx::query!(
+        "UPDATE patient SET name = ?, age = ? WHERE id = ?",
+        patient.name,
+        patient.age,
+        patient.id
+    )
+    .execute(db)
+    .await?;
+    Ok(())
+}
+
+#[tauri::command]
 async fn names(handle: AppHandle) -> DataCollectorResult<Vec<PatientName>> {
     let AppState { db } = handle.state::<AppState>().inner();
     let names = sqlx::query!("SELECT id, name FROM patient LIMIT 10000")
@@ -95,7 +109,7 @@ async fn get_patient(handle: AppHandle, id: i64) -> DataCollectorResult<Patient>
 async fn main() {
     tauri::Builder::default()
         .manage(AppState::init().await.unwrap())
-        .invoke_handler(tauri::generate_handler![save, names, get_patient])
+        .invoke_handler(tauri::generate_handler![save, names, update, get_patient])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
