@@ -3,7 +3,7 @@
 
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize, Serializer};
-use sqlx::SqlitePool;
+use sqlx::{prelude::FromRow, SqlitePool};
 use std::env;
 use tauri::{AppHandle, Manager};
 
@@ -36,20 +36,22 @@ impl AppState {
     }
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
-struct Patient {
+#[derive(Serialize, Deserialize, FromRow)]
+struct DbPatient {
     id: i64,
-    name: String,
-    age: i64,
+    #[sqlx(flatten)]
+    #[serde(flatten)]
+    inner: Patient,
 }
 
-#[derive(Deserialize)]
-struct NewPatient {
+#[derive(Deserialize, Serialize, FromRow)]
+struct Patient {
     name: String,
     age: i64,
+    prescription_year: i64,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, sqlx::FromRow)]
 struct PatientName {
     id: i64,
     name: String,
@@ -62,21 +64,33 @@ impl PatientName {
 }
 
 #[tauri::command]
-async fn save(handle: AppHandle, NewPatient { name, age }: NewPatient) -> DataCollectorResult<()> {
+async fn save(
+    handle: AppHandle,
+    Patient {
+        name,
+        age,
+        prescription_year,
+    }: Patient,
+) -> DataCollectorResult<()> {
     let AppState { db } = handle.state::<AppState>().inner();
-    sqlx::query!("INSERT INTO patient (name, age) VALUES (?, ?)", name, age)
-        .execute(db)
-        .await?;
+    sqlx::query!(
+        "INSERT INTO patient (name, age, prescription_year) VALUES (?, ?, ?)",
+        name,
+        age,
+        prescription_year
+    )
+    .execute(db)
+    .await?;
     Ok(())
 }
 
 #[tauri::command]
-async fn update(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
+async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()> {
     let AppState { db } = handle.state::<AppState>().inner();
     sqlx::query!(
         "UPDATE patient SET name = ?, age = ? WHERE id = ?",
-        patient.name,
-        patient.age,
+        patient.inner.name,
+        patient.inner.age,
         patient.id
     )
     .execute(db)
@@ -97,19 +111,58 @@ async fn names(handle: AppHandle) -> DataCollectorResult<Vec<PatientName>> {
 }
 
 #[tauri::command]
-async fn get_patient(handle: AppHandle, id: i64) -> DataCollectorResult<Patient> {
+async fn prescription_years(handle: AppHandle) -> DataCollectorResult<Vec<i64>> {
     let AppState { db } = handle.state::<AppState>().inner();
-    let patient = sqlx::query_as!(Patient, "SELECT * FROM patient WHERE id = ?", id)
+    let prescription_years =
+        sqlx::query!("SELECT DISTINCT prescription_year FROM patient LIMIT 10000")
+            .fetch_all(db)
+            .await?
+            .into_iter()
+            .map(|row| row.prescription_year)
+            .collect();
+
+    Ok(prescription_years)
+}
+
+#[tauri::command]
+async fn get_patient(handle: AppHandle, id: i64) -> DataCollectorResult<DbPatient> {
+    let AppState { db } = handle.state::<AppState>().inner();
+    let patient = sqlx::query_as("SELECT * FROM patient WHERE id = ?")
+        .bind(id)
         .fetch_one(db)
         .await?;
     Ok(patient)
+}
+
+#[tauri::command]
+async fn get_by_prescription_year(
+    handle: AppHandle,
+    prescription_year: i64,
+) -> DataCollectorResult<Vec<PatientName>> {
+    let AppState { db } = handle.state::<AppState>().inner();
+    let patient_names = sqlx::query_as!(
+        PatientName,
+        "SELECT id, name FROM patient WHERE prescription_year = ?",
+        prescription_year
+    )
+    .fetch_all(db)
+    .await?;
+
+    Ok(patient_names)
 }
 
 #[tokio::main]
 async fn main() {
     tauri::Builder::default()
         .manage(AppState::init().await.unwrap())
-        .invoke_handler(tauri::generate_handler![save, names, update, get_patient])
+        .invoke_handler(tauri::generate_handler![
+            save,
+            names,
+            update,
+            get_patient,
+            prescription_years,
+            get_by_prescription_year
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

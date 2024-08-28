@@ -2,6 +2,7 @@ export interface Patient {
 	name: string;
 	age: number;
 	id: number;
+	prescription_year: number;
 }
 
 export type PatientName = Pick<Patient, "name" | "id">;

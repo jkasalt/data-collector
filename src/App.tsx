@@ -4,70 +4,100 @@ import { invoke } from "@tauri-apps/api";
 import { Form } from "./Form";
 import type { Patient, PatientData, PatientForm, PatientName } from "./Patient";
 import { Sidebar } from "./Sidebar";
+import { Dropdown } from "./Dropdown";
 
 const DEFAULT_PATIENT: Readonly<PatientData> = {
 	name: "",
 	age: 0,
 	id: null,
+	prescription_year: 0,
 };
 
 function App() {
-	const [selected, setSelected] = useState<PatientData>(DEFAULT_PATIENT);
+	const [selectedPatieent, setSelectedPatient] =
+		useState<PatientData>(DEFAULT_PATIENT);
 	const [names, setNames] = useState<PatientName[]>([]);
+	const [years, setYears] = useState<number[]>([]);
 
-	const fetchNames = useCallback(async () => {
-		const namesResult = (await invoke("names").catch((err) =>
-			console.error(`error: ${err}`),
-		)) as PatientName[];
+	const fetchNames = useCallback(async (by_year?: number | null) => {
+		const toInvoke = by_year ? "get_by_prescription_year" : "names";
+		const args = by_year ? { prescriptionYear: by_year } : undefined;
+
+		const namesResult = (await invoke(toInvoke, args).catch((err) => {
+			console.error(`error: ${err}`);
+			return [];
+		})) as PatientName[];
+
 		setNames(namesResult);
+	}, []);
+
+	const fetchYears = useCallback(async () => {
+		const yearsResult = (await invoke("prescription_years").catch((err) =>
+			console.error(err),
+		)) as number[];
+		setYears(yearsResult);
 	}, []);
 
 	useEffect(() => {
 		fetchNames();
-	}, [fetchNames]);
+		fetchYears();
+	}, [fetchNames, fetchYears]);
 
 	function handleSelectedChange(id: number) {
 		console.log("clicked 2");
 		invoke("get_patient", { id: id }).then((patient) => {
 			console.log(patient);
-			setSelected(patient as Patient);
+			setSelectedPatient(patient as Patient);
 		});
 	}
 
 	function formData(): PatientForm {
-		const { id, ...formData } = selected;
+		const { id, ...formData } = selectedPatieent;
 		return formData;
 	}
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
-		if (selected.id) {
-			// TODO: update patient
+		if (selectedPatieent.id) {
 			invoke("update", {
-				patient: selected,
+				patient: selectedPatieent,
 			});
 		} else {
 			invoke("save", {
-				newPatient: { name: selected.name, age: selected.age },
+				patient: {
+					name: selectedPatieent.name,
+					age: selectedPatieent.age,
+					prescription_year: selectedPatieent.prescription_year,
+				},
 			})
 				.catch((err) => console.error(err))
-				.then(() => fetchNames());
+				.then(() => {
+					fetchNames();
+					fetchYears();
+				});
 		}
 	}
 
-	function handleFormChange({ name, age }: PatientForm) {
-		setSelected({ name, age, id: selected.id });
+	function handleFormChange({ name, age, prescription_year }: PatientForm) {
+		setSelectedPatient({
+			name,
+			age,
+			prescription_year,
+			id: selectedPatieent.id,
+		});
 	}
 
 	return (
 		<>
-			<h1>Hello !!</h1>
 			<div className="flex flex-row">
-				<Sidebar
-					onNew={() => setSelected(DEFAULT_PATIENT)}
-					onSelected={handleSelectedChange}
-					patientNames={names}
-				/>
+				<div className="flex flex-col p-4 bg-gray-700 border-gray-700">
+					<Dropdown items={years} onChange={fetchNames} />
+					<Sidebar
+						onNew={() => setSelectedPatient(DEFAULT_PATIENT)}
+						onSelected={handleSelectedChange}
+						patientNames={names}
+					/>
+				</div>
 				<div className="flex-grow bg-zinc-300">
 					<Form
 						onSubmit={handleSubmit}

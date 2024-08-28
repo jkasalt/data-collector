@@ -30,7 +30,7 @@ export function Sidebar({ onNew, onSelected, patientNames }: SidebarProps) {
 	const allItems = [newItem, ...normalItems];
 
 	return (
-		<div className="flex justify-center items-center bg-gray-700 border-gray-700">
+		<div className="flex justify-center items-center">
 			<nav className="flex flex-col p-4">
 				<ul>{allItems}</ul>
 			</nav>

@@ -6,17 +6,18 @@ type FormEltType =
 
 type FormEltProps = FormEltType & {
 	name: string;
+	label?: string;
 	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function FormElt({ type, name, value, onChange }: FormEltProps) {
+export function FormElt({ type, label, name, value, onChange }: FormEltProps) {
 	return (
 		<div className="flex items-center">
 			<label
 				htmlFor="name"
 				className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid"
 			>
-				{name}
+				{label ?? name}
 			</label>
 			<input
 				type={type}
