@@ -7,10 +7,18 @@ type FormEltType =
 type FormEltProps = FormEltType & {
 	name: string;
 	label?: string;
+	step?: number;
 	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function FormElt({ type, label, name, value, onChange }: FormEltProps) {
+export function FormElt({
+	type,
+	step,
+	label,
+	name,
+	value,
+	onChange,
+}: FormEltProps) {
 	return (
 		<div className="flex items-center">
 			<label
@@ -24,6 +32,7 @@ export function FormElt({ type, label, name, value, onChange }: FormEltProps) {
 				id={name}
 				name={name}
 				value={value}
+				step={step}
 				onChange={onChange}
 				className="flex-1 py-2 px-3 my-2 mx-1 leading-tight rounded shadow appearance-none focus:shadow-none focus:outline-blue-400"
 			/>

@@ -1,6 +1,7 @@
 import type { ChangeEvent, FormEvent } from "react";
 import { FormElt } from "./FormElt";
 import type { PatientForm } from "./Patient";
+import BinaryFormElt from "./BinaryFormElt";
 
 interface FormProps {
 	onSubmit: (e: FormEvent) => void;
@@ -9,9 +10,18 @@ interface FormProps {
 }
 
 export function Form({ onSubmit, onFormChange, patient }: FormProps) {
-	const numerical_fields = ["age", "prescription_year"];
+	const numerical_fields = [
+		"age",
+		"prescriptionYear",
+		"treatmentDuration",
+		"weight",
+		"height",
+		"cranialPerimeter",
+		"zScore",
+	];
 
 	function handleChange(e: ChangeEvent<HTMLInputElement>) {
+		console.log("in form", patient);
 		const changedField = e.target.name;
 		let newValue: string | number = e.target.value;
 
@@ -33,9 +43,30 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 			<h2>Treatment</h2>
 			<FormElt
 				type="number"
-				name="prescription_year"
+				name="prescriptionYear"
 				label="prescription year"
-				value={patient.prescription_year}
+				value={patient.prescriptionYear}
+				onChange={handleChange}
+			/>
+			<FormElt
+				type="number"
+				name="treatmentDuration"
+				label="treatment duration"
+				value={patient.treatmentDuration}
+				onChange={handleChange}
+			/>
+			<FormElt
+				type="text"
+				name="treatmentType"
+				label="treatment type"
+				value={patient.treatmentType}
+				onChange={handleChange}
+			/>
+			<FormElt
+				type="text"
+				name="prescriptionService"
+				label="prescription service"
+				value={patient.prescriptionService}
 				onChange={handleChange}
 			/>
 			<h2>Demography</h2>
@@ -49,6 +80,41 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 				type="number"
 				name="age"
 				value={patient.age}
+				onChange={handleChange}
+			/>
+			<FormElt
+				type="number"
+				name="weight"
+				label="weight"
+				value={patient.weight}
+				onChange={handleChange}
+			/>
+			<FormElt
+				type="number"
+				name="height"
+				label="height"
+				value={patient.height}
+				onChange={handleChange}
+			/>
+			<FormElt
+				type="number"
+				name="cranialPerimeter"
+				label="cranial perimeter"
+				value={patient.cranialPerimeter}
+				onChange={handleChange}
+			/>
+			<BinaryFormElt
+				things={["Yes", "No"]}
+				label="had evaluation nutritional state?"
+				onSelect={(idx) => {
+					patient.hadEvaluationNutriState = !!idx;
+				}}
+			/>
+			<FormElt
+				type="number"
+				name="zScore"
+				label="z-score"
+				value={patient.zScore}
 				onChange={handleChange}
 			/>
 			<h2>Diagnostic</h2>

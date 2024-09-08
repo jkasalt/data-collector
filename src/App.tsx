@@ -1,20 +1,29 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import "./App.css";
 import { invoke } from "@tauri-apps/api";
-import { Form } from "./Form";
+import { Dropdown } from "./Dropdown";
 import type { Patient, PatientData, PatientForm, PatientName } from "./Patient";
 import { Sidebar } from "./Sidebar";
-import { Dropdown } from "./Dropdown";
+import { Form } from "./Form";
 
 const DEFAULT_PATIENT: Readonly<PatientData> = {
 	name: "",
 	age: 0,
 	id: null,
-	prescription_year: 0,
+	prescriptionYear: 0,
+	treatmentDuration: 0,
+	treatmentType: "TailorMade",
+	prescriptionService: "Chph",
+
+	weight: 0,
+	height: 0,
+	cranialPerimeter: 0,
+	hadEvaluationNutriState: false,
+	zScore: 0,
 };
 
 function App() {
-	const [selectedPatieent, setSelectedPatient] =
+	const [selectedPatient, setSelectedPatient] =
 		useState<PatientData>(DEFAULT_PATIENT);
 	const [names, setNames] = useState<PatientName[]>([]);
 	const [years, setYears] = useState<number[]>([]);
@@ -52,39 +61,35 @@ function App() {
 	}
 
 	function formData(): PatientForm {
-		const { id, ...formData } = selectedPatieent;
+		const { id, ...formData } = selectedPatient;
 		return formData;
 	}
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
-		if (selectedPatieent.id) {
+		if (selectedPatient.id) {
 			invoke("update", {
-				patient: selectedPatieent,
+				patient: selectedPatient,
 			});
 		} else {
+			console.log(selectedPatient);
+			console.log({
+				patient: selectedPatient,
+			});
 			invoke("save", {
-				patient: {
-					name: selectedPatieent.name,
-					age: selectedPatieent.age,
-					prescription_year: selectedPatieent.prescription_year,
-				},
+				patient: selectedPatient,
 			})
 				.catch((err) => console.error(err))
 				.then(() => {
 					fetchNames();
 					fetchYears();
+					setSelectedPatient(DEFAULT_PATIENT);
 				});
 		}
 	}
 
-	function handleFormChange({ name, age, prescription_year }: PatientForm) {
-		setSelectedPatient({
-			name,
-			age,
-			prescription_year,
-			id: selectedPatieent.id,
-		});
+	function handleFormChange(patientForm: PatientForm) {
+		setSelectedPatient({ id: selectedPatient.id, ...patientForm });
 	}
 
 	return (

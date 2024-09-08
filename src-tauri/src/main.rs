@@ -1,10 +1,14 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use anyhow::Context;
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize, Serializer};
-use sqlx::{prelude::FromRow, SqlitePool};
-use std::env;
+use sqlx::{
+    prelude::{FromRow, Type},
+    SqlitePool,
+};
+use std::{env, path::PathBuf};
 use tauri::{AppHandle, Manager};
 
 #[derive(thiserror::Error, Debug, Serialize)]
@@ -30,9 +34,31 @@ struct AppState {
 
 impl AppState {
     async fn init() -> anyhow::Result<Self> {
-        dotenv()?;
-        let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
+        let db_path = db_path().expect("Db path should be set");
+
+        std::fs::create_dir_all(db_path.parent().unwrap()).context("when initializing the app")?;
+
+        let db = SqlitePool::connect(&db_path.to_string_lossy()).await?;
+
+        sqlx::migrate!("./migrations").run(&db).await?;
+
         Ok(Self { db })
+    }
+}
+
+fn db_path() -> Option<PathBuf> {
+    #[cfg(debug_assertions)]
+    {
+        dotenv().ok()?;
+        Some(PathBuf::from(env::var("DATABASE_URL").ok()?))
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        let config = tauri::utils::config::parse(".");
+        tauri::api::path::app_data_dir(&config).map(|mut path| {
+            path.push("data-collector");
+            path.push("db.sqlite")
+        })
     }
 }
 
@@ -44,11 +70,40 @@ struct DbPatient {
     inner: Patient,
 }
 
+#[derive(Serialize, Deserialize, Type)]
+enum TreatmentType {
+    TailorMade,
+    Standardized,
+}
+
+#[derive(Serialize, Deserialize, Type)]
+enum PrescriptionService {
+    Chph,
+    Der1,
+    Enfc,
+    Hadp,
+    Hel,
+    Nath,
+    Pedh,
+    Ponh,
+    Sipi,
+}
+
 #[derive(Deserialize, Serialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 struct Patient {
+    prescription_year: i64,
+    treatment_duration: i64,
+    treatment_type: TreatmentType,
+    prescription_service: PrescriptionService,
+
     name: String,
     age: i64,
-    prescription_year: i64,
+    weight: f64,
+    height: f64,
+    cranial_perimeter: f64,
+    had_evaluation_nutri_state: bool,
+    z_score: f64,
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -64,20 +119,34 @@ impl PatientName {
 }
 
 #[tauri::command]
-async fn save(
-    handle: AppHandle,
-    Patient {
-        name,
-        age,
-        prescription_year,
-    }: Patient,
-) -> DataCollectorResult<()> {
+async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
     let AppState { db } = handle.state::<AppState>().inner();
     sqlx::query!(
-        "INSERT INTO patient (name, age, prescription_year) VALUES (?, ?, ?)",
-        name,
-        age,
-        prescription_year
+        "INSERT INTO patient (
+            prescription_year,
+            treatment_duration,
+            treatment_type,
+            prescription_service,
+
+            name,
+            age,
+            weight,
+            height,
+            cranial_perimeter,
+            had_evaluation_nutri_state,
+            z_score
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        patient.prescription_year,
+        patient.treatment_duration,
+        patient.treatment_type,
+        patient.prescription_service,
+        patient.name,
+        patient.age,
+        patient.weight,
+        patient.height,
+        patient.cranial_perimeter,
+        patient.had_evaluation_nutri_state,
+        patient.z_score,
     )
     .execute(db)
     .await?;
