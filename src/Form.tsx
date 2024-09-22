@@ -1,13 +1,13 @@
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import Select from "react-select";
-import type { ChangeEvent, FormEvent } from "react";
+import BinaryFormElt from "./BinaryFormElt";
 import { FormElt } from "./FormElt";
 import {
-	PrescriptionServices,
-	TreatmentTypes,
 	type PatientForm,
+	PrescriptionServices,
+	TreatmentType,
+	TreatmentTypes,
 } from "./Patient";
-import BinaryFormElt from "./BinaryFormElt";
-import { Dropdown } from "./Dropdown";
 
 interface FormProps {
 	onSubmit: (e: FormEvent) => void;
@@ -16,6 +16,9 @@ interface FormProps {
 }
 
 export function Form({ onSubmit, onFormChange, patient }: FormProps) {
+	const [treatmentType, setTreatmentType] = useState(
+		"TailorMade" as TreatmentType,
+	);
 	const numerical_fields = [
 		"age",
 		"prescriptionYear",
@@ -67,7 +70,12 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 				</label>
 				<Select
 					className="flex-1 px-1 focus:outline-blue-400"
+					isClearable
 					options={TreatmentTypes}
+					value={{
+						label: patient.treatmentType.toString(),
+						value: patient.treatmentType,
+					}}
 					onChange={(selected) => {
 						if (!selected) {
 							return;
@@ -85,7 +93,12 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 				</label>
 				<Select
 					className="flex-1 px-1 focus:outline-blue-400"
+					isClearable
 					options={PrescriptionServices}
+					value={{
+						label: patient.prescriptionService.toString(),
+						value: patient.prescriptionService,
+					}}
 					onChange={(selected) => {
 						if (!selected) {
 							return;
@@ -132,10 +145,10 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 				onChange={handleChange}
 			/>
 			<BinaryFormElt
-				things={["Yes", "No"]}
+				things={["No", "Yes"]}
 				label="had evaluation nutritional state?"
-				onSelect={(idx) => {
-					patient.hadEvaluationNutriState = !!idx;
+				onSelect={(thing) => {
+					patient.hadEvaluationNutriState = thing === "Yes";
 				}}
 			/>
 			<FormElt

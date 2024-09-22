@@ -3,7 +3,7 @@ import { type ReactNode, useState } from "react";
 interface BinaryFormEltProps<T> {
 	things: T[];
 	label: string;
-	onSelect: (idx: number) => void;
+	onSelect: (thing: T, idx: number) => void;
 }
 
 export default function BinaryFormElt<T extends ReactNode>({
@@ -32,7 +32,7 @@ export default function BinaryFormElt<T extends ReactNode>({
 						className={`${basicClass} ${bgClass}`}
 						onClick={() => {
 							setSelected(idx);
-							onSelect(idx);
+							onSelect(thing, idx);
 						}}
 					>
 						{thing}
