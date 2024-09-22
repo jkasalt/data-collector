@@ -1,7 +1,13 @@
+import Select from "react-select";
 import type { ChangeEvent, FormEvent } from "react";
 import { FormElt } from "./FormElt";
-import type { PatientForm } from "./Patient";
+import {
+	PrescriptionServices,
+	TreatmentTypes,
+	type PatientForm,
+} from "./Patient";
 import BinaryFormElt from "./BinaryFormElt";
+import { Dropdown } from "./Dropdown";
 
 interface FormProps {
 	onSubmit: (e: FormEvent) => void;
@@ -55,20 +61,42 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 				value={patient.treatmentDuration}
 				onChange={handleChange}
 			/>
-			<FormElt
-				type="text"
-				name="treatmentType"
-				label="treatment type"
-				value={patient.treatmentType}
-				onChange={handleChange}
-			/>
-			<FormElt
-				type="text"
-				name="prescriptionService"
-				label="prescription service"
-				value={patient.prescriptionService}
-				onChange={handleChange}
-			/>
+			<div className="flex items-center">
+				<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
+					Type de traitement
+				</label>
+				<Select
+					className="flex-1 px-1 focus:outline-blue-400"
+					options={TreatmentTypes}
+					onChange={(selected) => {
+						if (!selected) {
+							return;
+						}
+						onFormChange({
+							...patient,
+							treatmentType: selected.value,
+						});
+					}}
+				/>
+			</div>
+			<div className="flex items-center">
+				<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
+					Service de prescription
+				</label>
+				<Select
+					className="flex-1 px-1 focus:outline-blue-400"
+					options={PrescriptionServices}
+					onChange={(selected) => {
+						if (!selected) {
+							return;
+						}
+						onFormChange({
+							...patient,
+							prescriptionService: selected.value,
+						});
+					}}
+				/>
+			</div>
 			<h2>Demography</h2>
 			<FormElt
 				type="text"

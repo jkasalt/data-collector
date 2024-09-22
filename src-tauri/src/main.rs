@@ -113,7 +113,7 @@ struct PatientName {
 }
 
 impl PatientName {
-    fn new(id: i64, name: String) -> Self {
+    const fn new(id: i64, name: String) -> Self {
         Self { id, name }
     }
 }

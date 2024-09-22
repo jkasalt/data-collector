@@ -1,28 +1,28 @@
 import Select, { type SingleValue } from "react-select";
-type DropdownProps = {
-	items: number[];
-	onChange: (item: number | null) => void;
+type DropdownProps<T> = {
+	items: T[];
+	onChange: (item: T | null) => void;
 };
 
-type NumericalOption = { value: number; label: number };
+type DropdownOption<T> = { value: T; label: T };
 
 type ResetOption = { value: null; label: "None" };
 
-export function Dropdown({ items, onChange }: DropdownProps) {
-	const intoOption = (item: number) => {
+export function Dropdown<T>({ items, onChange }: DropdownProps<T>) {
+	const intoOption = (item: T) => {
 		return { value: item, label: item };
 	};
 
 	const fromOption = (
-		option: SingleValue<NumericalOption | ResetOption>,
-	): number | null => {
+		option: SingleValue<DropdownOption<T> | ResetOption>,
+	): T | null => {
 		if (!option?.value) {
 			return null;
 		}
 		return option.value;
 	};
 
-	const options: (NumericalOption | ResetOption)[] = [
+	const options: (DropdownOption<T> | ResetOption)[] = [
 		{ value: null, label: "None" },
 		...items.map(intoOption),
 	];

@@ -30,6 +30,6 @@ dotenv = "0.15"
 # DO NOT REMOVE!!
 custom-protocol = [ "tauri/custom-protocol" ]
 
-[clippy.lints]
+[lints.clippy]
 pedantic = "warn"
 nursery = "warn"

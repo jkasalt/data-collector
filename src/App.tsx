@@ -33,7 +33,7 @@ function App() {
 		const args = by_year ? { prescriptionYear: by_year } : undefined;
 
 		const namesResult = (await invoke(toInvoke, args).catch((err) => {
-			console.error(`error: ${err}`);
+			console.error(err);
 			return [];
 		})) as PatientName[];
 
