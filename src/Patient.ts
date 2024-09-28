@@ -12,6 +12,7 @@ interface PatientInner {
 	cranialPerimeter: number;
 	hadEvaluationNutriState: boolean;
 	zScore: number;
+	diagnostic: Diagnostic;
 }
 
 export type Patient = Required<PatientInner>;
@@ -34,6 +35,28 @@ export type PrescriptionService =
 	| "Pedh"
 	| "Ponh"
 	| "Sipi";
+
+export type DiagnosticType =
+	| "ChromosomicSyndrome"
+	| "Respiratory"
+	| "Cardiac"
+	| "Snc"
+	| "Urologic"
+	| "MetabolicIllness"
+	| "Digestive";
+
+export type CardiacDiagnostic = "Cyanogenic" | "Other";
+
+export type SncDiagnostic = "Malformative" | "Aquired" | "Trauma";
+
+export type Diagnostic =
+	| { t: "ChromosomicSyndrome"; c: string }
+	| { t: "Respiratory"; c: boolean }
+	| { t: "Cardiac"; c: CardiacDiagnostic }
+	| { t: "Snc"; c: SncDiagnostic }
+	| { t: "Urologic" }
+	| { t: "MetabolicIllness" }
+	| { t: "Digestive"; c: string };
 
 export const TreatmentTypes = [
 	{

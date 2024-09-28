@@ -1,8 +1,8 @@
 import { type ReactNode, useState } from "react";
 
 interface BinaryFormEltProps<T> {
-	things: T[];
-	label: string;
+	things: { label: string; value: T }[];
+	label?: string;
 	onSelect: (thing: T, idx: number) => void;
 }
 
@@ -17,12 +17,14 @@ export default function BinaryFormElt<T extends ReactNode>({
 
 	return (
 		<div className="flex items-center">
-			<label
-				htmlFor="name"
-				className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid"
-			>
-				{label}
-			</label>
+			{label && (
+				<label
+					htmlFor="name"
+					className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid"
+				>
+					{label}
+				</label>
+			)}
 			{things.map((thing, idx) => {
 				const bgClass = idx === selected ? "bg-zinc-400" : "bg-zinc-300";
 				return (
@@ -32,10 +34,10 @@ export default function BinaryFormElt<T extends ReactNode>({
 						className={`${basicClass} ${bgClass}`}
 						onClick={() => {
 							setSelected(idx);
-							onSelect(thing, idx);
+							onSelect(thing.value, idx);
 						}}
 					>
-						{thing}
+						{thing.label}
 					</button>
 				);
 			})}

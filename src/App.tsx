@@ -5,6 +5,7 @@ import { Dropdown } from "./Dropdown";
 import type { Patient, PatientData, PatientForm, PatientName } from "./Patient";
 import { Sidebar } from "./Sidebar";
 import { Form } from "./Form";
+import { DiagnosticForm } from "./Diagnostic";
 
 const DEFAULT_PATIENT: Readonly<PatientData> = {
 	name: "",
@@ -20,6 +21,7 @@ const DEFAULT_PATIENT: Readonly<PatientData> = {
 	cranialPerimeter: 0,
 	hadEvaluationNutriState: false,
 	zScore: 0,
+	diagnostic: { t: "Digestive", c: "" },
 };
 
 function App() {
@@ -67,25 +69,16 @@ function App() {
 
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
-		if (selectedPatient.id) {
-			invoke("update", {
-				patient: selectedPatient,
+		const id = selectedPatient.id;
+		const toInvoke = id !== undefined && id !== null ? "update" : "save";
+		console.log({ patient: selectedPatient });
+		invoke(toInvoke, { patient: selectedPatient })
+			.catch((err) => console.error(err))
+			.then(() => {
+				fetchNames();
+				fetchYears();
+				setSelectedPatient(DEFAULT_PATIENT);
 			});
-		} else {
-			console.log(selectedPatient);
-			console.log({
-				patient: selectedPatient,
-			});
-			invoke("save", {
-				patient: selectedPatient,
-			})
-				.catch((err) => console.error(err))
-				.then(() => {
-					fetchNames();
-					fetchYears();
-					setSelectedPatient(DEFAULT_PATIENT);
-				});
-		}
 	}
 
 	function handleFormChange(patientForm: PatientForm) {

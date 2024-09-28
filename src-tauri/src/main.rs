@@ -6,6 +6,7 @@ use dotenv::dotenv;
 use serde::{Deserialize, Serialize, Serializer};
 use sqlx::{
     prelude::{FromRow, Type},
+    types::Json,
     SqlitePool,
 };
 use std::{env, path::PathBuf};
@@ -89,6 +90,32 @@ enum PrescriptionService {
     Sipi,
 }
 
+#[derive(Serialize, Deserialize)]
+enum CardiacDiagnostic {
+    Cyanogenic,
+    Other,
+}
+
+#[derive(Serialize, Deserialize)]
+enum SncDiagnostic {
+    Malformative,
+    Acquired,
+    Trauma,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+#[serde(tag = "t", content = "c")]
+enum Diagnostic {
+    ChromosomicSyndrome(String),
+    Respiratory { with_ventilatory_support: bool },
+    Cardiac(CardiacDiagnostic),
+    Snc(SncDiagnostic),
+    Urologic,
+    MetabolicIllness,
+    Digestive(String),
+}
+
 #[derive(Deserialize, Serialize, FromRow)]
 #[serde(rename_all = "camelCase")]
 struct Patient {
@@ -104,6 +131,7 @@ struct Patient {
     cranial_perimeter: f64,
     had_evaluation_nutri_state: bool,
     z_score: f64,
+    diagnostic: Json<Diagnostic>,
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -134,8 +162,9 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
             height,
             cranial_perimeter,
             had_evaluation_nutri_state,
-            z_score
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            z_score,
+            diagnostic
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         patient.prescription_year,
         patient.treatment_duration,
         patient.treatment_type,
@@ -147,6 +176,7 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
         patient.cranial_perimeter,
         patient.had_evaluation_nutri_state,
         patient.z_score,
+        patient.diagnostic
     )
     .execute(db)
     .await?;

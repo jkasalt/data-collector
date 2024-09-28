@@ -1,13 +1,16 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import Select from "react-select";
 import BinaryFormElt from "./BinaryFormElt";
 import { FormElt } from "./FormElt";
 import {
+	type CardiacDiagnostic,
+	type DiagnosticType,
 	type PatientForm,
 	PrescriptionServices,
-	TreatmentType,
+	type SncDiagnostic,
 	TreatmentTypes,
 } from "./Patient";
+import { DiagnosticForm } from "./Diagnostic";
 
 interface FormProps {
 	onSubmit: (e: FormEvent) => void;
@@ -16,9 +19,6 @@ interface FormProps {
 }
 
 export function Form({ onSubmit, onFormChange, patient }: FormProps) {
-	const [treatmentType, setTreatmentType] = useState(
-		"TailorMade" as TreatmentType,
-	);
 	const numerical_fields = [
 		"age",
 		"prescriptionYear",
@@ -44,127 +44,180 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 		});
 	}
 
+	function handleDiagnosticChange(s: string | undefined) {
+		if (s === "ChromosomicSyndrome" || s === "Digestive") {
+			onFormChange({
+				...patient,
+				diagnostic: { t: s, c: textBox },
+			});
+		} else if (s === "Respiratory") {
+			onFormChange({
+				...patient,
+				diagnostic: { t: s, c: selRespiratory },
+			});
+		} else if (s === "Cardiac") {
+			onFormChange({
+				...patient,
+				diagnostic: { t: s, c: selCardiac },
+			});
+		} else if (s === "Snc") {
+			onFormChange({
+				...patient,
+				diagnostic: { t: s, c: selSnc },
+			});
+		}
+
+		console.log("diagnostic change", patient);
+	}
+
+	const [selCardiac, setSelCardiac] = useState<CardiacDiagnostic>("Cyanogenic");
+	const [selSnc, setSelSnc] = useState<SncDiagnostic>("Malformative");
+	const [selRespiratory, setSelRespiratory] = useState<boolean>(false);
+	const [textBox, setTextBox] = useState<string>("");
+
 	return (
 		<form
 			onSubmit={onSubmit}
-			className="flex flex-col justify-start px-8 pt-6 pb-8 mb-4 align-baseline rounded"
+			className="flex flex-row justify-start px-8 pt-6 pb-8 mb-4 align-baseline rounded"
 		>
-			<h2>Treatment</h2>
-			<FormElt
-				type="number"
-				name="prescriptionYear"
-				label="prescription year"
-				value={patient.prescriptionYear}
-				onChange={handleChange}
-			/>
-			<FormElt
-				type="number"
-				name="treatmentDuration"
-				label="treatment duration"
-				value={patient.treatmentDuration}
-				onChange={handleChange}
-			/>
-			<div className="flex items-center">
-				<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
-					Type de traitement
-				</label>
-				<Select
-					className="flex-1 px-1 focus:outline-blue-400"
-					isClearable
-					options={TreatmentTypes}
-					value={{
-						label: patient.treatmentType.toString(),
-						value: patient.treatmentType,
-					}}
-					onChange={(selected) => {
-						if (!selected) {
-							return;
-						}
-						onFormChange({
-							...patient,
-							treatmentType: selected.value,
-						});
+			<div className="flex-1">
+				<h2 className="font-bold">Traitement</h2>
+				<FormElt
+					type="number"
+					name="prescriptionYear"
+					label="Année de prescription"
+					value={patient.prescriptionYear}
+					onChange={handleChange}
+				/>
+				<FormElt
+					type="number"
+					name="treatmentDuration"
+					label="Durée du traitement"
+					value={patient.treatmentDuration}
+					onChange={handleChange}
+				/>
+				<div className="flex items-center">
+					<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
+						Type de traitement
+					</label>
+					<Select
+						className="flex-1 px-1 focus:outline-blue-400"
+						isClearable
+						options={TreatmentTypes}
+						value={{
+							label: patient.treatmentType.toString(),
+							value: patient.treatmentType,
+						}}
+						onChange={(selected) => {
+							if (!selected) {
+								return;
+							}
+							onFormChange({
+								...patient,
+								treatmentType: selected.value,
+							});
+						}}
+					/>
+				</div>
+				<div className="flex items-center">
+					<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
+						Service de prescription
+					</label>
+					<Select
+						className="flex-1 px-1 focus:outline-blue-400"
+						isClearable
+						options={PrescriptionServices}
+						value={{
+							label: patient.prescriptionService.toString(),
+							value: patient.prescriptionService,
+						}}
+						onChange={(selected) => {
+							if (!selected) {
+								return;
+							}
+							onFormChange({
+								...patient,
+								prescriptionService: selected.value,
+							});
+						}}
+					/>
+				</div>
+				<h2 className="font-bold">Demographie</h2>
+				<FormElt
+					type="text"
+					name="name"
+					label="Nom"
+					value={patient.name}
+					onChange={handleChange}
+				/>
+				<FormElt
+					type="number"
+					name="age"
+					label="Age"
+					value={patient.age}
+					onChange={handleChange}
+				/>
+				<FormElt
+					type="number"
+					name="weight"
+					label="Poids"
+					value={patient.weight}
+					onChange={handleChange}
+				/>
+				<FormElt
+					type="number"
+					name="height"
+					label="Taille"
+					value={patient.height}
+					onChange={handleChange}
+				/>
+				<FormElt
+					type="number"
+					name="cranialPerimeter"
+					label="Perimètre cranier"
+					value={patient.cranialPerimeter}
+					onChange={handleChange}
+				/>
+				<BinaryFormElt
+					things={[
+						{ label: "Oui", value: true },
+						{ label: "Non", value: false },
+					]}
+					label="A eu une évaluation de l'état nutritif'?"
+					onSelect={(value) => {
+						patient.hadEvaluationNutriState = value;
 					}}
 				/>
-			</div>
-			<div className="flex items-center">
-				<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
-					Service de prescription
-				</label>
-				<Select
-					className="flex-1 px-1 focus:outline-blue-400"
-					isClearable
-					options={PrescriptionServices}
-					value={{
-						label: patient.prescriptionService.toString(),
-						value: patient.prescriptionService,
-					}}
-					onChange={(selected) => {
-						if (!selected) {
-							return;
-						}
-						onFormChange({
-							...patient,
-							prescriptionService: selected.value,
-						});
-					}}
+				<FormElt
+					type="number"
+					name="zScore"
+					label="z-score"
+					value={patient.zScore}
+					onChange={handleChange}
 				/>
 			</div>
-			<h2>Demography</h2>
-			<FormElt
-				type="text"
-				name="name"
-				value={patient.name}
-				onChange={handleChange}
-			/>
-			<FormElt
-				type="number"
-				name="age"
-				value={patient.age}
-				onChange={handleChange}
-			/>
-			<FormElt
-				type="number"
-				name="weight"
-				label="weight"
-				value={patient.weight}
-				onChange={handleChange}
-			/>
-			<FormElt
-				type="number"
-				name="height"
-				label="height"
-				value={patient.height}
-				onChange={handleChange}
-			/>
-			<FormElt
-				type="number"
-				name="cranialPerimeter"
-				label="cranial perimeter"
-				value={patient.cranialPerimeter}
-				onChange={handleChange}
-			/>
-			<BinaryFormElt
-				things={["No", "Yes"]}
-				label="had evaluation nutritional state?"
-				onSelect={(thing) => {
-					patient.hadEvaluationNutriState = thing === "Yes";
-				}}
-			/>
-			<FormElt
-				type="number"
-				name="zScore"
-				label="z-score"
-				value={patient.zScore}
-				onChange={handleChange}
-			/>
-			<h2>Diagnostic</h2>
-			<button
-				className="self-center py-1 px-3 rounded bg-zinc-500"
-				type="submit"
-			>
-				Submit
-			</button>
+			<div className="flex-1">
+				<h2 className="font-bold">Diagnostic</h2>
+				<DiagnosticForm
+					diagnostic={patient.diagnostic}
+					textBox={textBox}
+					onSelDiagnostic={(d) => {
+						if (d) {
+							handleDiagnosticChange(d);
+						}
+					}}
+					onChangeTextBox={(s) => setTextBox(s)}
+					onSelCardiac={setSelCardiac}
+					onSelSnc={setSelSnc}
+					onSelRespiratory={setSelRespiratory}
+				/>
+				<button
+					className="self-center py-1 px-3 m-3 rounded bg-zinc-500"
+					type="submit"
+				>
+					Submit
+				</button>
+			</div>
 		</form>
 	);
 }
