@@ -93,10 +93,11 @@ function App() {
 					<Sidebar
 						onNew={() => setSelectedPatient(DEFAULT_PATIENT)}
 						onSelected={handleSelectedChange}
+						selectedId={selectedPatient.id}
 						patientNames={names}
 					/>
 				</div>
-				<div className="flex-1 bg-zinc-300">
+				<div className="flex-1 bg-zinc-200">
 					<Form
 						onSubmit={handleSubmit}
 						onFormChange={handleFormChange}
