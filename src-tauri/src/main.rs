@@ -108,7 +108,7 @@ enum SncDiagnostic {
 #[serde(tag = "t", content = "c")]
 enum Diagnostic {
     ChromosomicSyndrome(String),
-    Respiratory { with_ventilatory_support: bool },
+    Respiratory(bool),
     Cardiac(CardiacDiagnostic),
     Snc(SncDiagnostic),
     Urologic,
@@ -187,9 +187,33 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
 async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()> {
     let AppState { db } = handle.state::<AppState>().inner();
     sqlx::query!(
-        "UPDATE patient SET name = ?, age = ? WHERE id = ?",
+        "UPDATE patient SET 
+            prescription_year = ?,
+            treatment_duration = ?,
+            treatment_type = ?,
+            prescription_service = ?,
+
+            name = ?,
+            age = ?,
+            weight = ?,
+            height = ?,
+            cranial_perimeter = ?,
+            had_evaluation_nutri_state = ?,
+            z_score = ?,
+            diagnostic = ?
+        WHERE id = ?",
+        patient.inner.prescription_year,
+        patient.inner.treatment_duration,
+        patient.inner.treatment_type,
+        patient.inner.prescription_service,
         patient.inner.name,
         patient.inner.age,
+        patient.inner.weight,
+        patient.inner.height,
+        patient.inner.cranial_perimeter,
+        patient.inner.had_evaluation_nutri_state,
+        patient.inner.z_score,
+        patient.inner.diagnostic,
         patient.id
     )
     .execute(db)

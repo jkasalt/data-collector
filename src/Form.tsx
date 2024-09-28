@@ -4,6 +4,7 @@ import BinaryFormElt from "./BinaryFormElt";
 import { FormElt } from "./FormElt";
 import {
 	type CardiacDiagnostic,
+	Diagnostic,
 	type DiagnosticType,
 	type PatientForm,
 	PrescriptionServices,
@@ -44,30 +45,8 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 		});
 	}
 
-	function handleDiagnosticChange(s: string | undefined) {
-		if (s === "ChromosomicSyndrome" || s === "Digestive") {
-			onFormChange({
-				...patient,
-				diagnostic: { t: s, c: textBox },
-			});
-		} else if (s === "Respiratory") {
-			onFormChange({
-				...patient,
-				diagnostic: { t: s, c: selRespiratory },
-			});
-		} else if (s === "Cardiac") {
-			onFormChange({
-				...patient,
-				diagnostic: { t: s, c: selCardiac },
-			});
-		} else if (s === "Snc") {
-			onFormChange({
-				...patient,
-				diagnostic: { t: s, c: selSnc },
-			});
-		}
-
-		console.log("diagnostic change", patient);
+	function handleDiagnosticChange(s: Diagnostic) {
+		onFormChange({ ...patient, diagnostic: s });
 	}
 
 	const [selCardiac, setSelCardiac] = useState<CardiacDiagnostic>("Cyanogenic");
@@ -200,16 +179,7 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 				<h2 className="font-bold">Diagnostic</h2>
 				<DiagnosticForm
 					diagnostic={patient.diagnostic}
-					textBox={textBox}
-					onSelDiagnostic={(d) => {
-						if (d) {
-							handleDiagnosticChange(d);
-						}
-					}}
-					onChangeTextBox={(s) => setTextBox(s)}
-					onSelCardiac={setSelCardiac}
-					onSelSnc={setSelSnc}
-					onSelRespiratory={setSelRespiratory}
+					onChange={handleDiagnosticChange}
 				/>
 				<button
 					className="self-center py-1 px-3 m-3 rounded bg-zinc-500"

@@ -3,15 +3,17 @@ import { type ReactNode, useState } from "react";
 interface BinaryFormEltProps<T> {
 	things: { label: string; value: T }[];
 	label?: string;
+	defaultSelection?: number;
 	onSelect: (thing: T, idx: number) => void;
 }
 
 export default function BinaryFormElt<T extends ReactNode>({
 	things,
 	label,
+	defaultSelection,
 	onSelect,
 }: BinaryFormEltProps<T>) {
-	const [selected, setSelected] = useState(0);
+	const [selected, setSelected] = useState(defaultSelection ?? 0);
 	const basicClass =
 		"flex-1 py-2 px-3 my-2 mx-1 leading-tight rounded shadow appearance-none focus:shadow-none hover:outline-blue-400";
 

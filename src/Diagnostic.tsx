@@ -1,27 +1,20 @@
 import Select from "react-select";
 import BinaryFormElt from "./BinaryFormElt";
-import type { CardiacDiagnostic, Diagnostic, SncDiagnostic } from "./Patient";
+import type {
+	CardiacDiagnostic,
+	Diagnostic,
+	DiagnosticType,
+	SncDiagnostic,
+} from "./Patient";
 import { useEffect } from "react";
 
 interface DiagnosticFormProps {
 	diagnostic: Diagnostic;
 	textBox?: string;
-	onSelDiagnostic: (d: string | undefined) => void;
-	onChangeTextBox: (text: string) => void;
-	onSelCardiac: (c: CardiacDiagnostic) => void;
-	onSelSnc: (snc: SncDiagnostic) => void;
-	onSelRespiratory: (r: boolean) => void;
+	onChange: (d: Diagnostic) => void;
 }
 
-export function DiagnosticForm({
-	diagnostic,
-	onSelDiagnostic,
-	onSelSnc,
-	onSelCardiac,
-	onSelRespiratory,
-	textBox,
-	onChangeTextBox,
-}: DiagnosticFormProps) {
+export function DiagnosticForm({ diagnostic, onChange }: DiagnosticFormProps) {
 	const diagnosticOptions = [
 		{ label: "Syndrome Chromosomique", value: "ChromosomicSyndrome" },
 		{ label: "Respiratoire", value: "Respiratory" },
@@ -30,7 +23,7 @@ export function DiagnosticForm({
 		{ label: "Urologique", value: "Urologic" },
 		{ label: "Maladie Metabolique", value: "MetabolicIllness" },
 		{ label: "Digestif", value: "Digestive" },
-	];
+	] as { label: string; value: DiagnosticType }[];
 
 	const choiceCardiac = [
 		{ label: "Cyanogenique", value: "Cyanogenic" },
@@ -42,13 +35,11 @@ export function DiagnosticForm({
 		{ label: "Acquéri", value: "Acquired" },
 		{ label: "Trauma", value: "Trauma" },
 	] as { label: string; value: SncDiagnostic }[];
+
 	const choiceRespiratory = [
 		{ label: "Avec", value: true },
 		{ label: "Sans", value: false },
 	];
-
-	const needsTextBox = (d: string | undefined) =>
-		d === "ChromosomicSyndrome" || d === "Digestive";
 
 	useEffect(() => {
 		console.log(diagnostic);
@@ -60,22 +51,42 @@ export function DiagnosticForm({
 				options={diagnosticOptions}
 				value={diagnosticOptions.find((opt) => opt.value === diagnostic.t)}
 				onChange={(option) => {
-					onSelDiagnostic(option?.value);
+					if (!option) {
+						return;
+					}
+					const opt = option.value;
+					if (opt === "ChromosomicSyndrome" || opt === "Digestive") {
+						onChange({ t: opt, c: "" });
+					} else if (opt === "Respiratory") {
+						onChange({ t: opt, c: false });
+					} else if (opt === "Cardiac") {
+						onChange({ t: opt, c: "Cyanogenic" });
+					} else if (opt === "Snc") {
+						onChange({ t: opt, c: "Malformative" });
+					} else {
+						onChange({ t: opt });
+					}
 				}}
 			/>
 			{diagnostic.t === "Snc" && (
 				<BinaryFormElt
 					things={choiceSnc}
+					defaultSelection={choiceSnc.findIndex(
+						(c) => c.value === diagnostic.c,
+					)}
 					onSelect={(thing) => {
-						onSelSnc(thing);
+						onChange({ t: "Snc", c: thing });
 					}}
 				/>
 			)}
 			{diagnostic.t === "Cardiac" && (
 				<BinaryFormElt
 					things={choiceCardiac}
+					defaultSelection={choiceCardiac.findIndex(
+						(c) => c.value === diagnostic.c,
+					)}
 					onSelect={(thing) => {
-						onSelCardiac(thing);
+						onChange({ t: "Cardiac", c: thing });
 					}}
 				/>
 			)}
@@ -84,20 +95,24 @@ export function DiagnosticForm({
 					<BinaryFormElt
 						things={choiceRespiratory}
 						label="Support respiratoire?"
+						defaultSelection={choiceRespiratory.findIndex(
+							(c) => c.value === diagnostic.c,
+						)}
 						onSelect={(thing) => {
-							onSelRespiratory(thing);
+							onChange({ t: "Respiratory", c: thing });
 						}}
 					/>
 				</>
 			)}
-			{needsTextBox(diagnostic.t) && (
+			{(diagnostic.t === "Digestive" ||
+				diagnostic.t === "ChromosomicSyndrome") && (
 				<>
 					{"Détails:\n"}
 					<textarea
 						className="w-full rounded shadow min-h-[300px] outline-offset-2 focus:outline-blue-400"
-						value={textBox}
+						value={diagnostic.c}
 						onChange={(e) => {
-							onChangeTextBox(e.target.value);
+							onChange({ t: diagnostic.t, c: e.target.value });
 						}}
 					/>
 				</>
