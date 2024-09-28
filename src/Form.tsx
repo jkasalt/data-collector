@@ -78,7 +78,7 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 	return (
 		<form
 			onSubmit={onSubmit}
-			className="flex flex-row justify-start px-8 pt-6 pb-8 mb-4 align-baseline rounded"
+			className="flex flex-row justify-between px-8 pt-6 pb-8 mb-4 align-baseline rounded"
 		>
 			<div className="flex-1">
 				<h2 className="font-bold">Traitement</h2>

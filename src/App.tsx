@@ -88,7 +88,7 @@ function App() {
 	return (
 		<>
 			<div className="flex flex-row">
-				<div className="flex flex-col p-4 bg-gray-700 border-gray-700">
+				<div className="flex flex-col p-4 bg-gray-700 border-gray-700 max-w-[150px]">
 					<Dropdown items={years} onChange={fetchNames} />
 					<Sidebar
 						onNew={() => setSelectedPatient(DEFAULT_PATIENT)}
@@ -96,7 +96,7 @@ function App() {
 						patientNames={names}
 					/>
 				</div>
-				<div className="flex-grow bg-zinc-300">
+				<div className="flex-1 bg-zinc-300">
 					<Form
 						onSubmit={handleSubmit}
 						onFormChange={handleFormChange}

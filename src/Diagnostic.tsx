@@ -93,9 +93,8 @@ export function DiagnosticForm({
 			{needsTextBox(diagnostic.t) && (
 				<>
 					{"Détails:\n"}
-					<input
-						className="w-full rounded shadow min-h-[300px] focus:outline-blue-400"
-						type="text"
+					<textarea
+						className="w-full rounded shadow min-h-[300px] outline-offset-2 focus:outline-blue-400"
 						value={textBox}
 						onChange={(e) => {
 							onChangeTextBox(e.target.value);
