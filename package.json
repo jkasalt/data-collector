@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "tsc -b && vite build",
 		"preview": "vite preview",
-		"dev": "tsc --noEmit && biome lint --fix && vite"
+		"dev": "tsc && biome lint --fix && vite"
 	},
 	"dependencies": {
 		"@tauri-apps/api": "^1.6.0",

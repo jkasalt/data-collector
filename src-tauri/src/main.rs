@@ -47,19 +47,24 @@ impl AppState {
     }
 }
 
-fn db_path() -> Option<PathBuf> {
-    #[cfg(debug_assertions)]
+#[cfg(debug_assertions)]
+fn db_path() -> anyhow::Result<PathBuf> {
+    dotenv()?;
+    Ok(PathBuf::from(env::var("DATABASE_URL")?))
+}
+
+#[cfg(not(debug_assertions))]
+fn db_path() -> anyhow::Result<PathBuf> {
     {
-        dotenv().ok()?;
-        Some(PathBuf::from(env::var("DATABASE_URL").ok()?))
-    }
-    #[cfg(not(debug_assertions))]
-    {
-        let config = tauri::utils::config::parse(".");
-        tauri::api::path::app_data_dir(&config).map(|mut path| {
-            path.push("data-collector");
-            path.push("db.sqlite")
-        })
+        let (config, _) =
+            tauri::utils::config::parse(".").context("When parsing the tauri config")?;
+        tauri::api::path::app_data_dir(&config)
+            .map(|mut path| {
+                path.push("data-collector");
+                path.push("db.sqlite");
+                path
+            })
+            .ok_or_else(|| anyhow::anyhow!("Could not find app data dir"))
     }
 }
 

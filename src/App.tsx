@@ -5,7 +5,6 @@ import { Dropdown } from "./Dropdown";
 import type { Patient, PatientData, PatientForm, PatientName } from "./Patient";
 import { Sidebar } from "./Sidebar";
 import { Form } from "./Form";
-import { DiagnosticForm } from "./Diagnostic";
 
 const DEFAULT_PATIENT: Readonly<PatientData> = {
 	name: "",

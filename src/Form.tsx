@@ -1,14 +1,11 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import Select from "react-select";
 import BinaryFormElt from "./BinaryFormElt";
 import { FormElt } from "./FormElt";
 import {
-	type CardiacDiagnostic,
-	Diagnostic,
-	type DiagnosticType,
+	type Diagnostic,
 	type PatientForm,
 	PrescriptionServices,
-	type SncDiagnostic,
 	TreatmentTypes,
 } from "./Patient";
 import { DiagnosticForm } from "./Diagnostic";
@@ -48,11 +45,6 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 	function handleDiagnosticChange(s: Diagnostic) {
 		onFormChange({ ...patient, diagnostic: s });
 	}
-
-	const [selCardiac, setSelCardiac] = useState<CardiacDiagnostic>("Cyanogenic");
-	const [selSnc, setSelSnc] = useState<SncDiagnostic>("Malformative");
-	const [selRespiratory, setSelRespiratory] = useState<boolean>(false);
-	const [textBox, setTextBox] = useState<string>("");
 
 	return (
 		<form
