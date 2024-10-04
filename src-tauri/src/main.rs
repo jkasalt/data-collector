@@ -128,15 +128,19 @@ struct Patient {
     treatment_duration: i64,
     treatment_type: TreatmentType,
     prescription_service: PrescriptionService,
+    nombre_de_prescriptions: i32,
+    diagnostic: Json<Diagnostic>,
 
     name: String,
-    age: i64,
+    age: f64,
+    sex: String,
     weight: f64,
     height: f64,
     cranial_perimeter: f64,
     had_evaluation_nutri_state: bool,
-    z_score: f64,
-    diagnostic: Json<Diagnostic>,
+    z_score_weight: f64,
+    z_score_height: f64,
+    z_score_pc: f64,
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -160,28 +164,36 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
             treatment_duration,
             treatment_type,
             prescription_service,
+            nombre_de_prescriptions,
+            diagnostic,
 
             name,
             age,
+            sex,
             weight,
             height,
             cranial_perimeter,
             had_evaluation_nutri_state,
-            z_score,
-            diagnostic
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            z_score_weight,
+            z_score_height,
+            z_score_pc
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         patient.prescription_year,
         patient.treatment_duration,
         patient.treatment_type,
         patient.prescription_service,
+        patient.nombre_de_prescriptions,
+        patient.diagnostic,
         patient.name,
         patient.age,
+        patient.sex,
         patient.weight,
         patient.height,
         patient.cranial_perimeter,
         patient.had_evaluation_nutri_state,
-        patient.z_score,
-        patient.diagnostic
+        patient.z_score_weight,
+        patient.z_score_height,
+        patient.z_score_pc,
     )
     .execute(db)
     .await?;
@@ -197,29 +209,37 @@ async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()
             treatment_duration = ?,
             treatment_type = ?,
             prescription_service = ?,
+            nombre_de_prescriptions = ?,
+            diagnostic = ?,
 
             name = ?,
             age = ?,
+            sex = ?,
             weight = ?,
             height = ?,
             cranial_perimeter = ?,
             had_evaluation_nutri_state = ?,
-            z_score = ?,
-            diagnostic = ?
+            z_score_weight = ?,
+            z_score_height = ?,
+            z_score_pc = ?
         WHERE id = ?",
         patient.inner.prescription_year,
         patient.inner.treatment_duration,
         patient.inner.treatment_type,
         patient.inner.prescription_service,
+        patient.inner.nombre_de_prescriptions,
+        patient.inner.diagnostic,
         patient.inner.name,
         patient.inner.age,
+        patient.inner.sex,
         patient.inner.weight,
         patient.inner.height,
         patient.inner.cranial_perimeter,
         patient.inner.had_evaluation_nutri_state,
-        patient.inner.z_score,
-        patient.inner.diagnostic,
-        patient.id
+        patient.inner.z_score_weight,
+        patient.inner.z_score_height,
+        patient.inner.z_score_pc,
+        patient.id,
     )
     .execute(db)
     .await?;
