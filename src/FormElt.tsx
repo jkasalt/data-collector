@@ -7,7 +7,7 @@ type FormEltType =
 type FormEltProps = FormEltType & {
 	name: string;
 	label?: string;
-	step?: number;
+	step?: string;
 	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 

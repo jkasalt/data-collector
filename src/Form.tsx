@@ -17,23 +17,23 @@ interface FormProps {
 }
 
 export function Form({ onSubmit, onFormChange, patient }: FormProps) {
-	const numerical_fields = [
-		"age",
+	const intFields = new Set([
 		"prescriptionYear",
 		"treatmentDuration",
-		"weight",
-		"height",
-		"cranialPerimeter",
 		"zScore",
-	];
+	]);
+
+	const floatFields = new Set(["age", "weight", "height", "cranialPerimeter"]);
 
 	function handleChange(e: ChangeEvent<HTMLInputElement>) {
 		console.log("in form", patient);
 		const changedField = e.target.name;
 		let newValue: string | number = e.target.value;
 
-		if (numerical_fields.includes(changedField)) {
+		if (intFields.has(changedField)) {
 			newValue = Number.parseInt(newValue, 10);
+		} else if (floatFields.has(changedField)) {
+			newValue = Number.parseFloat(newValue);
 		}
 
 		onFormChange({
