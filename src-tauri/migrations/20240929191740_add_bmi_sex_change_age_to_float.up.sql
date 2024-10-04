@@ -27,5 +27,5 @@ ALTER TABLE patient ADD COLUMN sex TEXT CHECK(sex in ('m', 'f')) NOT NULL DEFAUL
 
 -- add z-score columns
 ALTER TABLE patient RENAME COLUMN z_score TO z_score_weight;
-ALTER TABLE patient ADD COLUMN z_score_height NOT NULL DEFAULT 0;
-ALTER TABLE patient ADD COLUMN z_score_pc NOT NULL DEFAULT 0;
+ALTER TABLE patient ADD COLUMN z_score_height REAL NOT NULL DEFAULT 0;
+ALTER TABLE patient ADD COLUMN z_score_pc REAL NOT NULL DEFAULT 0;
