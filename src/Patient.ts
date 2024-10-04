@@ -56,7 +56,9 @@ export type Diagnostic =
 	| { t: "Snc"; c: SncDiagnostic }
 	| { t: "Urologic" }
 	| { t: "MetabolicIllness" }
-	| { t: "Digestive"; c: string };
+	| { t: "Digestive"; c: string }
+	| { t: "Premature"; c: string }
+	| { t: "Other"; c: string };
 
 export const TreatmentTypes = [
 	{
@@ -70,13 +72,13 @@ export const TreatmentTypes = [
 ];
 
 export const PrescriptionServices = [
-	{ label: "Chph", value: "Chph" as PrescriptionService },
-	{ label: "Der1", value: "Der1" as PrescriptionService },
-	{ label: "Enfc", value: "Enfc" as PrescriptionService },
-	{ label: "Hadp", value: "Hadp" as PrescriptionService },
-	{ label: "Hel", value: "Hel" as PrescriptionService },
-	{ label: "Nath", value: "Nath" as PrescriptionService },
-	{ label: "Pedh", value: "Pedh" as PrescriptionService },
-	{ label: "Ponh", value: "Ponh" as PrescriptionService },
-	{ label: "Sipi", value: "Sipi" as PrescriptionService },
+	{ label: "CHPH", value: "Chph" as PrescriptionService },
+	{ label: "DER1", value: "Der1" as PrescriptionService },
+	{ label: "ENFC", value: "Enfc" as PrescriptionService },
+	{ label: "HADP", value: "Hadp" as PrescriptionService },
+	{ label: "HEL", value: "Hel" as PrescriptionService },
+	{ label: "NATH", value: "Nath" as PrescriptionService },
+	{ label: "PEDH", value: "Pedh" as PrescriptionService },
+	{ label: "PONH", value: "Ponh" as PrescriptionService },
+	{ label: "SIPI", value: "Sipi" as PrescriptionService },
 ];

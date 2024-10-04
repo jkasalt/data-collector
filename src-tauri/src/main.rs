@@ -119,6 +119,8 @@ enum Diagnostic {
     Urologic,
     MetabolicIllness,
     Digestive(String),
+    Premature(String),
+    Other(String),
 }
 
 #[derive(Deserialize, Serialize, FromRow)]

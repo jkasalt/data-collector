@@ -23,6 +23,8 @@ export function DiagnosticForm({ diagnostic, onChange }: DiagnosticFormProps) {
 		{ label: "Urologique", value: "Urologic" },
 		{ label: "Maladie Metabolique", value: "MetabolicIllness" },
 		{ label: "Digestif", value: "Digestive" },
+		{ label: "Prematuré", value: "Premature" },
+		{ label: "Autre", value: "Other" },
 	] as { label: string; value: DiagnosticType }[];
 
 	const choiceCardiac = [
@@ -105,7 +107,9 @@ export function DiagnosticForm({ diagnostic, onChange }: DiagnosticFormProps) {
 				</>
 			)}
 			{(diagnostic.t === "Digestive" ||
-				diagnostic.t === "ChromosomicSyndrome") && (
+				diagnostic.t === "ChromosomicSyndrome" ||
+				diagnostic.t === "Other" ||
+				diagnostic.t === "Premature") && (
 				<>
 					{"Détails:\n"}
 					<textarea
