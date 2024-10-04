@@ -90,6 +90,7 @@ function App() {
 				<div className="flex flex-col p-4 bg-gray-700 border-gray-700 max-w-[150px]">
 					<Dropdown items={years} onChange={fetchNames} />
 					<Sidebar
+						className="overflow-y-auto overflow-x-visible"
 						onNew={() => setSelectedPatient(DEFAULT_PATIENT)}
 						onSelected={handleSelectedChange}
 						selectedId={selectedPatient.id}

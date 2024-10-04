@@ -2,6 +2,7 @@ import type { PatientName } from "./Patient";
 import { SidebarElt } from "./SidebarElt";
 
 interface SidebarProps {
+	className?: string;
 	onNew: () => void;
 	onSelected: (n: number) => void;
 	selectedId?: number | null;
@@ -9,6 +10,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({
+	className = "",
 	onNew,
 	onSelected,
 	patientNames,
@@ -16,7 +18,7 @@ export function Sidebar({
 }: SidebarProps) {
 	const newItem = (
 		<SidebarElt
-			className="text-6xl"
+			className="max-w-full text-6xl"
 			isSelected={selectedId === undefined || selectedId === null}
 			content="+"
 			index={-1}
@@ -27,6 +29,7 @@ export function Sidebar({
 
 	const normalItems = patientNames.map(({ id, name }, index) => (
 		<SidebarElt
+			className="max-w-full"
 			isSelected={selectedId === id}
 			content={name}
 			index={index}
@@ -37,9 +40,10 @@ export function Sidebar({
 
 	const allItems = [newItem, ...normalItems];
 
+	// TODO: If an element overflows, the content of the sidebar looks shifted to the left
 	return (
-		<div className="flex justify-center items-center">
-			<nav className="flex flex-col p-4">
+		<div className={`flex justify-center items-center ${className}`}>
+			<nav className="flex flex-col p-4 max-w-full h-screen">
 				<ul>{allItems}</ul>
 			</nav>
 		</div>
