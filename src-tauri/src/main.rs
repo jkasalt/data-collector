@@ -160,6 +160,7 @@ impl PatientName {
 #[tauri::command]
 async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
     let AppState { db } = handle.state::<AppState>().inner();
+    let bmi = 10.0 * patient.weight / patient.height.powi(2);
     sqlx::query!(
         "INSERT INTO patient (
             prescription_year,
@@ -174,12 +175,13 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
             sex,
             weight,
             height,
+            bmi,
             cranial_perimeter,
             had_evaluation_nutri_state,
             z_score_weight,
             z_score_height,
             z_score_pc
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         patient.prescription_year,
         patient.treatment_duration,
         patient.treatment_type,
@@ -191,6 +193,7 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
         patient.sex,
         patient.weight,
         patient.height,
+        bmi,
         patient.cranial_perimeter,
         patient.had_evaluation_nutri_state,
         patient.z_score_weight,
@@ -205,6 +208,7 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
 #[tauri::command]
 async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()> {
     let AppState { db } = handle.state::<AppState>().inner();
+    let bmi = 10.0 * patient.inner.weight / patient.inner.height.powi(2);
     sqlx::query!(
         "UPDATE patient SET 
             prescription_year = ?,
@@ -219,6 +223,7 @@ async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()
             sex = ?,
             weight = ?,
             height = ?,
+            bmi = ?,
             cranial_perimeter = ?,
             had_evaluation_nutri_state = ?,
             z_score_weight = ?,
@@ -236,6 +241,7 @@ async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()
         patient.inner.sex,
         patient.inner.weight,
         patient.inner.height,
+        bmi,
         patient.inner.cranial_perimeter,
         patient.inner.had_evaluation_nutri_state,
         patient.inner.z_score_weight,
