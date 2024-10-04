@@ -5,14 +5,18 @@ interface PatientInner {
 	treatmentDuration: number;
 	treatmentType: TreatmentType;
 	prescriptionService: PrescriptionService;
+	nombreDePrescriptions: number;
 	name: string;
 	age: number;
 	weight: number;
 	height: number;
 	cranialPerimeter: number;
 	hadEvaluationNutriState: boolean;
-	zScore: number;
 	diagnostic: Diagnostic;
+	zScoreWeight: number;
+	zScoreHeight: number;
+	zScorePc: number;
+	sex: string;
 }
 
 export type Patient = Required<PatientInner>;
@@ -43,7 +47,9 @@ export type DiagnosticType =
 	| "Snc"
 	| "Urologic"
 	| "MetabolicIllness"
-	| "Digestive";
+	| "Digestive"
+	| "Premature"
+	| "Other";
 
 export type CardiacDiagnostic = "Cyanogenic" | "Other";
 

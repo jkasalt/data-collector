@@ -1,21 +1,27 @@
-import { type ReactNode, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface BinaryFormEltProps<T> {
 	things: { label: string; value: T }[];
 	label?: string;
 	defaultSelection?: number;
 	onSelect: (thing: T, idx: number) => void;
+	value?: T;
 }
 
-export default function BinaryFormElt<T extends ReactNode>({
+export default function BinaryFormElt<T>({
 	things,
 	label,
 	defaultSelection,
+	value,
 	onSelect,
 }: BinaryFormEltProps<T>) {
 	const [selected, setSelected] = useState(defaultSelection ?? 0);
 	const basicClass =
 		"flex-1 py-2 px-3 my-2 mx-1 leading-tight rounded shadow appearance-none focus:shadow-none hover:outline-blue-400";
+
+	useEffect(() => {
+		setSelected(things.findIndex((t) => t.value === value));
+	}, [value, things]);
 
 	return (
 		<div className="flex items-center">

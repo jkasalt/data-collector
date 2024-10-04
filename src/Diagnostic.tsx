@@ -6,7 +6,6 @@ import type {
 	DiagnosticType,
 	SncDiagnostic,
 } from "./Patient";
-import { useEffect } from "react";
 
 interface DiagnosticFormProps {
 	diagnostic: Diagnostic;
@@ -43,10 +42,6 @@ export function DiagnosticForm({ diagnostic, onChange }: DiagnosticFormProps) {
 		{ label: "Sans", value: false },
 	];
 
-	useEffect(() => {
-		console.log(diagnostic);
-	}, [diagnostic]);
-
 	return (
 		<>
 			<Select
@@ -57,7 +52,12 @@ export function DiagnosticForm({ diagnostic, onChange }: DiagnosticFormProps) {
 						return;
 					}
 					const opt = option.value;
-					if (opt === "ChromosomicSyndrome" || opt === "Digestive") {
+					if (
+						opt === "ChromosomicSyndrome" ||
+						opt === "Digestive" ||
+						opt === "Premature" ||
+						opt === "Other"
+					) {
 						onChange({ t: opt, c: "" });
 					} else if (opt === "Respiratory") {
 						onChange({ t: opt, c: false });
@@ -97,9 +97,7 @@ export function DiagnosticForm({ diagnostic, onChange }: DiagnosticFormProps) {
 					<BinaryFormElt
 						things={choiceRespiratory}
 						label="Support respiratoire?"
-						defaultSelection={choiceRespiratory.findIndex(
-							(c) => c.value === diagnostic.c,
-						)}
+						value={diagnostic.c}
 						onSelect={(thing) => {
 							onChange({ t: "Respiratory", c: thing });
 						}}

@@ -14,13 +14,17 @@ const DEFAULT_PATIENT: Readonly<PatientData> = {
 	treatmentDuration: 0,
 	treatmentType: "TailorMade",
 	prescriptionService: "Chph",
+	nombreDePrescriptions: 1,
 
 	weight: 0,
 	height: 0,
 	cranialPerimeter: 0,
 	hadEvaluationNutriState: false,
-	zScore: 0,
 	diagnostic: { t: "Digestive", c: "" },
+	zScoreWeight: 0,
+	zScoreHeight: 0,
+	zScorePc: 0,
+	sex: "m",
 };
 
 function App() {
@@ -54,9 +58,7 @@ function App() {
 	}, [fetchNames, fetchYears]);
 
 	function handleSelectedChange(id: number) {
-		console.log("clicked 2");
 		invoke("get_patient", { id: id }).then((patient) => {
-			console.log(patient);
 			setSelectedPatient(patient as Patient);
 		});
 	}
@@ -70,7 +72,6 @@ function App() {
 		e.preventDefault();
 		const id = selectedPatient.id;
 		const toInvoke = id !== undefined && id !== null ? "update" : "save";
-		console.log({ patient: selectedPatient });
 		invoke(toInvoke, { patient: selectedPatient })
 			.catch((err) => console.error(err))
 			.then(() => {

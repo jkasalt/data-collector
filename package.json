@@ -4,9 +4,9 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"build": "tsc -b && vite build",
+		"build": "tsc -b && biome lint && vite build",
 		"preview": "vite preview",
-		"dev": "tsc && biome lint --fix && vite"
+		"dev": "tsc -b && biome lint --fix && vite"
 	},
 	"dependencies": {
 		"@tauri-apps/api": "^1.6.0",
