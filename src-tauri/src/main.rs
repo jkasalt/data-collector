@@ -10,7 +10,7 @@ use sqlx::{
     SqlitePool,
 };
 use std::{env, path::PathBuf};
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Manager, RunEvent};
 
 #[derive(thiserror::Error, Debug, Serialize)]
 #[non_exhaustive]
@@ -31,6 +31,7 @@ type DataCollectorResult<T> = Result<T, DataCollectorError>;
 
 struct AppState {
     db: SqlitePool,
+    rt: tokio::runtime::Handle,
 }
 
 impl AppState {
@@ -39,11 +40,25 @@ impl AppState {
 
         std::fs::create_dir_all(db_path.parent().unwrap()).context("when initializing the app")?;
 
-        let db = SqlitePool::connect(&db_path.to_string_lossy()).await?;
-
+        let db = SqlitePool::connect(&db_path.to_string_lossy())
+            .await
+            .context("when connecting to database")?;
+        let rt = tokio::runtime::Handle::current();
         sqlx::migrate!("./migrations").run(&db).await?;
 
-        Ok(Self { db })
+        Ok(Self { db, rt })
+    }
+
+    fn close(&self) {
+        tokio::task::block_in_place(|| {
+            self.rt.block_on(self.db.close());
+        });
+    }
+}
+
+impl Drop for AppState {
+    fn drop(&mut self) {
+        self.close();
     }
 }
 
@@ -159,7 +174,7 @@ impl PatientName {
 
 #[tauri::command]
 async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
-    let AppState { db } = handle.state::<AppState>().inner();
+    let AppState { db, .. } = handle.state::<AppState>().inner();
     let bmi = 10.0 * patient.weight / patient.height.powi(2);
     sqlx::query!(
         "INSERT INTO patient (
@@ -207,7 +222,7 @@ async fn save(handle: AppHandle, patient: Patient) -> DataCollectorResult<()> {
 
 #[tauri::command]
 async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()> {
-    let AppState { db } = handle.state::<AppState>().inner();
+    let AppState { db, .. } = handle.state::<AppState>().inner();
     let bmi = 10.0 * patient.inner.weight / patient.inner.height.powi(2);
     sqlx::query!(
         "UPDATE patient SET 
@@ -256,7 +271,7 @@ async fn update(handle: AppHandle, patient: DbPatient) -> DataCollectorResult<()
 
 #[tauri::command]
 async fn names(handle: AppHandle) -> DataCollectorResult<Vec<PatientName>> {
-    let AppState { db } = handle.state::<AppState>().inner();
+    let AppState { db, .. } = handle.state::<AppState>().inner();
     let names = sqlx::query!("SELECT id, name FROM patient LIMIT 10000")
         .fetch_all(db)
         .await?
@@ -268,7 +283,7 @@ async fn names(handle: AppHandle) -> DataCollectorResult<Vec<PatientName>> {
 
 #[tauri::command]
 async fn prescription_years(handle: AppHandle) -> DataCollectorResult<Vec<i64>> {
-    let AppState { db } = handle.state::<AppState>().inner();
+    let AppState { db, .. } = handle.state::<AppState>().inner();
     let prescription_years =
         sqlx::query!("SELECT DISTINCT prescription_year FROM patient LIMIT 10000")
             .fetch_all(db)
@@ -282,7 +297,7 @@ async fn prescription_years(handle: AppHandle) -> DataCollectorResult<Vec<i64>> 
 
 #[tauri::command]
 async fn get_patient(handle: AppHandle, id: i64) -> DataCollectorResult<DbPatient> {
-    let AppState { db } = handle.state::<AppState>().inner();
+    let AppState { db, .. } = handle.state::<AppState>().inner();
     let patient = sqlx::query_as("SELECT * FROM patient WHERE id = ?")
         .bind(id)
         .fetch_one(db)
@@ -295,7 +310,7 @@ async fn get_by_prescription_year(
     handle: AppHandle,
     prescription_year: i64,
 ) -> DataCollectorResult<Vec<PatientName>> {
-    let AppState { db } = handle.state::<AppState>().inner();
+    let AppState { db, .. } = handle.state::<AppState>().inner();
     let patient_names = sqlx::query_as!(
         PatientName,
         "SELECT id, name FROM patient WHERE prescription_year = ?",
@@ -309,7 +324,7 @@ async fn get_by_prescription_year(
 
 #[tokio::main]
 async fn main() {
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .manage(AppState::init().await.unwrap())
         .invoke_handler(tauri::generate_handler![
             save,
@@ -319,6 +334,13 @@ async fn main() {
             prescription_years,
             get_by_prescription_year
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+
+    app.run(|app_handle, event| {
+        if let RunEvent::ExitRequested { .. } = event {
+            app_handle.state::<AppState>().close();
+            std::process::exit(0)
+        }
+    });
 }
