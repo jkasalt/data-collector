@@ -93,16 +93,14 @@ export function DiagnosticForm({ diagnostic, onChange }: DiagnosticFormProps) {
 				/>
 			)}
 			{diagnostic.t === "Respiratory" && (
-				<>
-					<BinaryFormElt
-						things={choiceRespiratory}
-						label="Support respiratoire?"
-						value={diagnostic.c}
-						onSelect={(thing) => {
-							onChange({ t: "Respiratory", c: thing });
-						}}
-					/>
-				</>
+				<BinaryFormElt
+					things={choiceRespiratory}
+					label="Support respiratoire?"
+					value={diagnostic.c}
+					onSelect={(thing) => {
+						onChange({ t: "Respiratory", c: thing });
+					}}
+				/>
 			)}
 			{(diagnostic.t === "Digestive" ||
 				diagnostic.t === "ChromosomicSyndrome" ||

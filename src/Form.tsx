@@ -75,9 +75,9 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 					onChange={handleChange}
 				/>
 				<div className="flex items-center">
-					<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
+					<p className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
 						Type de traitement
-					</label>
+					</p>
 					<Select
 						className="flex-1 px-1 focus:outline-blue-400"
 						isClearable
@@ -98,9 +98,9 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 					/>
 				</div>
 				<div className="flex items-center">
-					<label className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
+					<p className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
 						Service de prescription
-					</label>
+					</p>
 					<Select
 						className="flex-1 px-1 focus:outline-blue-400"
 						isClearable
