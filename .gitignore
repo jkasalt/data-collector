@@ -23,3 +23,4 @@ dist
 bun.lockb
 src-tauri/Cargo.lock
 src-tauri/db.sqlite
+.direnv/

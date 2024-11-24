@@ -91,10 +91,23 @@ struct DbPatient {
     inner: Patient,
 }
 
-#[derive(Serialize, Deserialize, Type)]
+#[derive(Serialize, Deserialize)]
 enum TreatmentType {
     TailorMade,
-    Standardized,
+    Standardized(StandardizedTreatmentType),
+}
+
+#[derive(Serialize, Deserialize)]
+enum StandardizedTreatmentType {
+    Periolimel1500,
+    Aminomix,
+    SmofKabiven986,
+    SmofKabiven1477,
+    NutriflexNeoperi,
+    NutriflexOmegaSpecial,
+    Omegaflex625,
+    Omegaflex1250,
+    Omegaflex1875,
 }
 
 #[derive(Serialize, Deserialize, Type)]
@@ -143,7 +156,7 @@ enum Diagnostic {
 struct Patient {
     prescription_year: i64,
     treatment_duration: i64,
-    treatment_type: TreatmentType,
+    treatment_type: Json<TreatmentType>,
     prescription_service: PrescriptionService,
     nombre_de_prescriptions: i32,
     diagnostic: Json<Diagnostic>,
