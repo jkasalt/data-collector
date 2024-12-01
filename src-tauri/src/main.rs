@@ -91,13 +91,14 @@ struct DbPatient {
     inner: Patient,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "type", content = "content")]
 enum TreatmentType {
     TailorMade,
     Standardized(StandardizedTreatmentType),
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 enum StandardizedTreatmentType {
     Periolimel1500,
     Aminomix,
@@ -110,7 +111,7 @@ enum StandardizedTreatmentType {
     Omegaflex1875,
 }
 
-#[derive(Serialize, Deserialize, Type)]
+#[derive(Debug, Serialize, Deserialize, Type, PartialEq)]
 enum PrescriptionService {
     Chph,
     Der1,
@@ -123,20 +124,20 @@ enum PrescriptionService {
     Sipi,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 enum CardiacDiagnostic {
     Cyanogenic,
     Other,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 enum SncDiagnostic {
     Malformative,
     Acquired,
     Trauma,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "PascalCase")]
 #[serde(tag = "t", content = "c")]
 enum Diagnostic {
@@ -151,7 +152,7 @@ enum Diagnostic {
     Other(String),
 }
 
-#[derive(Deserialize, Serialize, FromRow)]
+#[derive(Debug, Deserialize, Serialize, FromRow, PartialEq)]
 #[serde(rename_all = "camelCase")]
 struct Patient {
     prescription_year: i64,
@@ -356,4 +357,36 @@ async fn main() {
             std::process::exit(0)
         }
     });
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn patient_deserialize_works() {
+        let input = r#"{"id":null,"name":"","age":0,"prescriptionYear":0,"treatmentDuration":0,"treatmentType":{"type":"Standardized","content":"SmofKabiven986"},"prescriptionService":"Chph","nombreDePrescriptions":1,"weight":0,"height":0,"cranialPerimeter":0,"hadEvaluationNutriState":false,"diagnostic":{"t":"Digestive","c":""},"zScoreWeight":0,"zScoreHeight":0,"zScorePc":0,"sex":"m"}"#;
+        let expected = Patient {
+            name: String::new(),
+            age: 0.0,
+            prescription_year: 0,
+            treatment_duration: 0,
+            treatment_type: Json(TreatmentType::Standardized(
+                StandardizedTreatmentType::SmofKabiven986,
+            )),
+            prescription_service: PrescriptionService::Chph,
+            nombre_de_prescriptions: 1,
+            weight: 0.0,
+            height: 0.0,
+            cranial_perimeter: 0.0,
+            had_evaluation_nutri_state: false,
+            diagnostic: Json(Diagnostic::Digestive(String::new())),
+            z_score_weight: 0.0,
+            z_score_height: 0.0,
+            z_score_pc: 0.0,
+            sex: "m".to_string(),
+        };
+
+        assert_eq!(serde_json::from_str::<Patient>(input).unwrap(), expected);
+    }
 }

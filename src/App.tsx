@@ -12,7 +12,7 @@ const DEFAULT_PATIENT: Readonly<PatientData> = {
 	id: null,
 	prescriptionYear: 0,
 	treatmentDuration: 0,
-	treatmentType: "TailorMade",
+	treatmentType: { type: "Standardized", content: "Periolimel1500" },
 	prescriptionService: "Chph",
 	nombreDePrescriptions: 1,
 
@@ -73,7 +73,12 @@ function App() {
 		const id = selectedPatient.id;
 		const toInvoke = id !== undefined && id !== null ? "update" : "save";
 		invoke(toInvoke, { patient: selectedPatient })
-			.catch((err) => console.error(err))
+			.catch((err) => {
+				console.error(
+					`Failed to submit patient: ${JSON.stringify(selectedPatient)}`,
+				);
+				console.error(err);
+			})
 			.then(() => {
 				fetchNames();
 				fetchYears();

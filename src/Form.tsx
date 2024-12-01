@@ -5,8 +5,9 @@ import { FormElt } from "./FormElt";
 import {
 	type Diagnostic,
 	type PatientForm,
-	PrescriptionServices,
-	TreatmentTypes,
+	PRESCRIPTION_SERVICES,
+	STANDADIZED_TREATMENT_TYPES_OPTIONS,
+	TREATMENT_TYPES,
 } from "./Patient";
 import { DiagnosticForm } from "./Diagnostic";
 
@@ -81,9 +82,9 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 					<Select
 						className="flex-1 px-1 focus:outline-blue-400"
 						isClearable
-						options={TreatmentTypes}
+						options={TREATMENT_TYPES}
 						value={{
-							label: patient.treatmentType.toString(),
+							label: patient.treatmentType.type.toString(),
 							value: patient.treatmentType,
 						}}
 						onChange={(selected) => {
@@ -97,6 +98,30 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 						}}
 					/>
 				</div>
+				{patient.treatmentType.type === "Standardized" && (
+					<div className="flex items-center">
+						<p className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
+							Type de traitement standardisé
+						</p>
+						<Select
+							className="flex-1 px-1 focus:outline-blue-400"
+							isClearable
+							options={STANDADIZED_TREATMENT_TYPES_OPTIONS}
+							onChange={(selected) => {
+								if (!selected) {
+									return;
+								}
+								onFormChange({
+									...patient,
+									treatmentType: {
+										type: "Standardized",
+										content: selected.value,
+									},
+								});
+							}}
+						/>
+					</div>
+				)}
 				<div className="flex items-center">
 					<p className="py-2 px-3 my-2 mx-1 w-1/6 text-right wid">
 						Service de prescription
@@ -104,7 +129,7 @@ export function Form({ onSubmit, onFormChange, patient }: FormProps) {
 					<Select
 						className="flex-1 px-1 focus:outline-blue-400"
 						isClearable
-						options={PrescriptionServices}
+						options={PRESCRIPTION_SERVICES}
 						value={{
 							label: patient.prescriptionService.toString(),
 							value: patient.prescriptionService,

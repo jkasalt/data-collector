@@ -27,7 +27,38 @@ export type PatientForm = Omit<Patient, "id">;
 
 export type PatientData = Omit<Patient, "id"> & { id: number | null };
 
-export type TreatmentType = "TailorMade" | "Standardized";
+export type TreatmentType =
+	| { type: "TailorMade" }
+	| { type: "Standardized"; content: StandardizedTreatmentType };
+
+export const STANDADIZED_TREATMENT_TYPES = [
+	"Periolimel1500",
+	"Aminomix",
+	"SmofKabiven986",
+	"SmofKabiven1477",
+	"NutriflexNeoperi",
+	"NutriflexOmegaSpecial",
+	"Omegaflex625",
+	"Omegaflex1250",
+	"Omegaflex1875",
+] as const;
+
+export const STANDADIZED_TREATMENT_TYPES_OPTIONS = [
+	["Perilomel 1500", "Periolimel1500"],
+	["Aminomix", "Aminomix"],
+	["Smof Kabiven 986", "SmofKabiven986"],
+	["Smof Kabiven 1477", "SmofKabiven1477"],
+	["Nutriflex Neoperi", "NutriflexNeoperi"],
+	["Nutriflex Omega Special", "NutriflexOmegaSpecial"],
+	["Omegaflex 625", "Omegaflex625"],
+	["Omegaflex 1250", "Omegaflex1250"],
+	["Omegaflex 1875", "Omegaflex1875"],
+].map((it) => {
+	return { label: it[0], value: it[1] as StandardizedTreatmentType };
+});
+
+export type StandardizedTreatmentType =
+	(typeof STANDADIZED_TREATMENT_TYPES)[number];
 
 export type PrescriptionService =
 	| "Chph"
@@ -66,18 +97,18 @@ export type Diagnostic =
 	| { t: "Premature"; c: string }
 	| { t: "Other"; c: string };
 
-export const TreatmentTypes = [
+export const TREATMENT_TYPES = [
 	{
 		label: "Standadized",
-		value: "Standardized" as TreatmentType,
+		value: { type: "Standardized" } as TreatmentType,
 	},
 	{
 		label: "Tailor Made",
-		value: "TailorMade" as TreatmentType,
+		value: { type: "TailorMade" } as TreatmentType,
 	},
 ];
 
-export const PrescriptionServices = [
+export const PRESCRIPTION_SERVICES = [
 	{ label: "CHPH", value: "Chph" as PrescriptionService },
 	{ label: "DER1", value: "Der1" as PrescriptionService },
 	{ label: "ENFC", value: "Enfc" as PrescriptionService },
