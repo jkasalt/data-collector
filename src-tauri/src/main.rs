@@ -109,6 +109,7 @@ enum StandardizedTreatmentType {
     Omegaflex625,
     Omegaflex1250,
     Omegaflex1875,
+    Aliped,
 }
 
 #[derive(Debug, Serialize, Deserialize, Type, PartialEq)]

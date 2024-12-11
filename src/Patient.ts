@@ -32,6 +32,7 @@ export type TreatmentType =
 	| { type: "Standardized"; content: StandardizedTreatmentType };
 
 export const STANDADIZED_TREATMENT_TYPES = [
+	"Aliped",
 	"Periolimel1500",
 	"Aminomix",
 	"SmofKabiven986",
@@ -44,6 +45,7 @@ export const STANDADIZED_TREATMENT_TYPES = [
 ] as const;
 
 export const STANDADIZED_TREATMENT_TYPES_OPTIONS = [
+	["Aliped", "Aliped"],
 	["Perilomel 1500", "Periolimel1500"],
 	["Aminomix", "Aminomix"],
 	["Smof Kabiven 986", "SmofKabiven986"],
